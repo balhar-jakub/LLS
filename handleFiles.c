@@ -15,15 +15,10 @@ floattype **loadMatrix(char *filePath){
     
     matrixFile = fopen(filePath,"rb");
     fread(&header, sizeof(header), 1, matrixFile);
-//    fscanf(matrixFile,"%lu", &amountOfRows);
-//    fscanf(matrixFile,"%lu", &amountOfCells);
     matrix = AllocMatrix(header.rowcount, header.colcount);
 
     for(size_t actualRow = 0; actualRow < header.rowcount; actualRow++) {
         fread(matrix[actualRow], sizeof(floattype), header.colcount, matrixFile);
-        /*for(size_t actualColumn = 0; actualColumn < header.colcount; actualColumn++){
-            fscanf(matrixFile,"%lf;", &matrix[actualRow][actualColumn]);
-        }*/
     }
 
     fclose(matrixFile);
@@ -46,15 +41,9 @@ void saveMatrix(floattype **matrix, char *filePath, size_t amountOfRows, size_t 
     header.rowcount = amountOfRows;
     header.colcount = amountOfCols;
     fwrite(&header, sizeof(header), 1, matrixFile);
-    //fprintf(matrixFile,"%lu\n", amountOfRows);
-    //fprintf(matrixFile,"%lu\n", amountOfCols);
     for(size_t actualRow = 0; actualRow < amountOfRows; actualRow++) {
         fwrite(matrix[actualRow], sizeof(floattype), amountOfCols, matrixFile);
         fwrite(endOfLine, sizeof(char), 1, matrixFile);
-        /*for(size_t actualColumn = 0; actualColumn < amountOfCols; actualColumn++){
-            fprintf(matrixFile,"%f", matrix[actualRow][actualColumn]);
-        }
-        fprintf(matrixFile,"\n");*/
     }
 
     fclose(matrixFile);
