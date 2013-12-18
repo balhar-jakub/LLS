@@ -12,7 +12,7 @@ floattype **AllocMatrix(size_t rowCount, size_t columnCount)
 {
     floattype **matrix = (floattype**) malloc (sizeof(floattype*) * rowCount);
     for(size_t i = 0; i < rowCount; i++) {
-            matrix[i] = (floattype*) malloc (sizeof(floattype)*(columnCount));
+            matrix[i] = AllocRow(columnCount);
             for(size_t j = 0; j < columnCount; j++) {
                 matrix[i][j] = 0;
             }
@@ -29,4 +29,11 @@ void FreeMatrix(floattype **matrix, size_t rowCount){
             free(matrix[i]);
     }
     free(matrix);
+}
+
+/*
+ * It simply allocates Row in memory. Just handy shorter notation for malloc.
+ */
+floattype *AllocRow(size_t rowSize) {
+    return (floattype*) malloc (sizeof(floattype)*(rowSize));
 }

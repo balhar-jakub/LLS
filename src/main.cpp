@@ -14,6 +14,7 @@
 
 #include "files.h"
 #include "types.h"
+#include "codes.h"
     
 void PrintResult(floattype *result, size_t amountOfResults){
     for(size_t i=0; i < amountOfResults; i++){
@@ -43,22 +44,21 @@ HRESULT SolveLLS4Plus(floattype **extendedmatrix, size_t paramcount, size_t rowc
     return S_OK;
 }
 
-int main(int argc, char **argv)
-{
-    size_t columnCount = (size_t) strtol(argv[1], NULL, 10); //(size_t) argv[1];
-    size_t rowCount = (size_t) strtol(argv[2], NULL, 10); //(size_t) argv[2];
-    bool isZeroOk = (int) strtol(argv[3], NULL, 10);
+int solveLLS(int argc, char **argv) {
+    size_t columnCount = getParamSize(argv[1]); //(size_t) argv[1];
+    size_t rowCount = getParamSize(argv[2]); //(size_t) argv[2];
+    bool isZeroOk = getParamBool(argv[3]);
     
     bool saveFile;
     char* filePath;
     if(argc == 6) {
-        saveFile = (int) strtol(argv[4], NULL, 10);
+        saveFile = getParamBool(argv[4]);
         filePath = argv[5];
     }
     
     floattype **matrix = AllocMatrix(columnCount, rowCount);
     GenerateDataForMatrix(matrix, rowCount, columnCount, isZeroOk);
-    floattype *result = (floattype*) malloc (sizeof(floattype) * columnCount);
+    floattype *result = AllocRow(rowCount);
     for(int i = 0; i < columnCount; i++) {
         result[i] = rand();
     }
@@ -71,6 +71,7 @@ int main(int argc, char **argv)
             matrix = loadMatrix(filePath);
         }
     }
+    
     // This actually generates Gram matrix. 
     GenerateMatrix(matrix, rowCount, columnCount, result);
 
@@ -95,5 +96,10 @@ int main(int argc, char **argv)
     FreeMatrix(matrix, rowCount);
     free(result);
 
-    return (0);
+    return (CODE_OK);
+}
+
+int main(int argc, char **argv)
+{
+    solveLLS(argc, argv);
 }

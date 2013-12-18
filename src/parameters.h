@@ -12,7 +12,8 @@
 extern "C" {
 #endif
 
-
+    size_t getParamSize(char *arg);
+    bool getParamBool(char *arg);
 
 
 #ifdef	__cplusplus

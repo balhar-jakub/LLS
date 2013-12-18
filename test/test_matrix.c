@@ -69,7 +69,7 @@ void testGenerateSquare(void) {
     matrix[3][2] = 1;
     matrix[3][3] = 1;
     
-    floattype * resultColumn = (floattype*) malloc (rows * sizeof(floattype));
+    floattype * resultColumn = AllocRow(rows);
     resultColumn[0] = 5;
     resultColumn[1] = 5;
     resultColumn[2] = 5;
@@ -136,7 +136,7 @@ void testGenerateRectangleCorrect(void) {
     matrix[4][1] = 1;
     matrix[4][2] = 1;
     
-    floattype *resultColumn = (floattype*) malloc (rows * sizeof(floattype));
+    floattype *resultColumn = AllocRow(rows);
     resultColumn[0] = 5;
     resultColumn[1] = 5;
     resultColumn[2] = 5;
@@ -194,7 +194,7 @@ void testGenerateRectangleTooManyColumns(void) {
     size_t columns = 5;
     floattype **result;
     floattype **matrix = AllocMatrix(rows, columns);
-    floattype *resultColumn = (floattype*) malloc (rows * sizeof(floattype));
+    floattype *resultColumn = AllocRow(rows);
     
     result = GenerateMatrix(matrix, rows, columns, resultColumn);
     CU_ASSERT(result == NULL);
