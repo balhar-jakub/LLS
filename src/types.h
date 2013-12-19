@@ -26,7 +26,11 @@
         ULong64_t rowcount;  //počet řádků matice, malý endián
         ULong64_t colcount; //počet sloupců matice, malý endián
     } MatrixFileHeader;
-
+    
+    typedef struct {
+        MatrixFileHeader header;
+        floattype **matrix;
+    } Matrix;
 
 #endif
     

@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall
+CFLAGS=-c -Wall -g -O0
 HEADER_BASIC=src/types.h src/codes.h
 
 files.o: src/files.c src/files.h $(HEADER_BASIC)
@@ -28,8 +28,8 @@ all: build test
 build: files.o memory.o test_files.o
 
 test: test_files test_matrix
-	valgrind --leak-check=yes ./test_files
-	valgrind --leak-check=yes ./test_matrix
+	valgrind --leak-check=full ./test_files
+	valgrind --leak-check=full ./test_matrix
 
 clean: 
 	rm -rf *o files test_files

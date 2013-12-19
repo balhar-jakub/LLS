@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <CUnit/Basic.h>
 
@@ -17,19 +18,12 @@
 void assertMatricesAreSame(floattype **expected, floattype **result, 
         MatrixFileHeader *resultHeader);
 
-static FILE *matrixFile;
-
 /* The suite initialization function.
  * Opens the temporary file used by the tests.
  * Returns zero on success, non-zero otherwise.
  */
 int init_suite1(void) {
-    matrixFile = fopen("test/matrix_to_save","wb");
-    if(matrixFile == NULL) {
-        return CODE_NO_FILE;
-    } else {
-        return CODE_OK;
-    }
+    return CODE_OK;
 }
 
 /* The suite cleanup function.
@@ -37,14 +31,15 @@ int init_suite1(void) {
  * Returns zero on success, non-zero otherwise.
  */
 int clean_suite1(void) {
-    int result = fclose(matrixFile);
-    if(result != CODE_OK) {
-        return CODE_CANT_CLOSE;
-    }
     return CODE_OK;
 }
 
 void testSaveMatrix(void) {
+    FILE *matrixFile = fopen("test/matrix_to_save","wb");
+    if(matrixFile == NULL) {
+        return;
+    } 
+    
     size_t columns = 3;
     size_t rows = 3;
     floattype **matrix = AllocMatrix(rows, columns);
@@ -52,22 +47,29 @@ void testSaveMatrix(void) {
     
     CU_ASSERT(CODE_OK == saveMatrix(matrix, matrixFile, rows, columns));
     FreeMatrix(matrix, rows);
+    fclose(matrixFile);
     
-    MatrixFileHeader header = {0, 0};
-    matrix = loadMatrix(matrixFile, &header);
-    CU_ASSERT(NULL != matrix);
-    if(NULL == matrix) {
+    Matrix *matrixLoaded;
+    FILE *loadFile = fopen("test/matrix_to_save","rb");
+    matrixLoaded = loadMatrix(loadFile);
+    fclose(loadFile);
+    
+    CU_ASSERT(NULL != matrixLoaded);
+    if(NULL == matrixLoaded) {
         FreeMatrix(expected, rows);
         return;
     }
-    printf("%llu %llu\n", header.colcount, header.rowcount);
+    printf("%llu %llu\n", 
+            matrixLoaded->header.colcount, 
+            matrixLoaded->header.rowcount);
     
-    CU_ASSERT(3 == header.rowcount);
-    CU_ASSERT(3 == header.colcount);
+    CU_ASSERT(3 == matrixLoaded->header.colcount);
+    CU_ASSERT(3 == matrixLoaded->header.rowcount);
     
-    assertMatricesAreSame(expected, matrix, &header);
+    assertMatricesAreSame(expected, matrixLoaded->matrix, &(matrixLoaded->header));
     
-    FreeMatrix(matrix, rows);
+    FreeMatrix(matrixLoaded->matrix, matrixLoaded->header.rowcount);
+    free(matrixLoaded);
     FreeMatrix(expected, rows);
 }
 

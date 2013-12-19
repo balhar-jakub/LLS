@@ -17,17 +17,17 @@
  * It loads matrix from file on the filePath, if the filePath does not exists,
  * it returns NULL. Otherwise it returns loaded Matrix.
  */
-floattype **loadMatrix(char *filePath, MatrixFileHeader *header)
+Matrix *loadMatrix(char *filePath)
 {
     FILE *matrixFile;
-    floattype **matrix;
+    Matrix *matrix;
     
     matrixFile = fopen(filePath,"rb");
     if(matrixFile == NULL) {
         return NULL;
     }
     
-    matrix = loadMatrix(matrixFile, header);
+    matrix = loadMatrix(matrixFile);
     
     fclose(matrixFile);
     return matrix;
@@ -36,23 +36,30 @@ floattype **loadMatrix(char *filePath, MatrixFileHeader *header)
 /*
  * It loads matrix from given file.
  */
-floattype **loadMatrix(FILE *matrixFile, MatrixFileHeader *header)
+Matrix *loadMatrix(FILE *matrixFile)
 {
     floattype **matrix;
+    char endOfLine;
+    Matrix *result = (Matrix*) malloc (sizeof(Matrix));
     
+    MatrixFileHeader header = {0,0};
     fread(&header, sizeof(header), 1, matrixFile);
-    printf("%llu %llu\n", (*header).colcount, (*header).rowcount);
-    if(header->colcount == 0 || header->rowcount == 0) {
+    
+    printf("\n%llu %llu\n", header.colcount, header.rowcount);
+    if(header.colcount == 0 || header.rowcount == 0) {
         return NULL;
     }
     
-    matrix = AllocMatrix((*header).colcount, (*header).rowcount);
+    matrix = AllocMatrix(header.rowcount, header.colcount);
 
-    for(size_t actualRow = 0; actualRow < (*header).rowcount; actualRow++) {
-        fread(&matrix[actualRow], sizeof(floattype), (*header).colcount, matrixFile);
+    for(size_t actualRow = 0; actualRow < header.rowcount; actualRow++) {
+        fread(matrix[actualRow], sizeof(floattype), header.colcount, matrixFile);
+        fread(&endOfLine, sizeof(char), 1, matrixFile);
     }
-
-    return matrix;
+    
+    result->header = header;
+    result->matrix = matrix;
+    return result;
 }
 
 
@@ -91,7 +98,6 @@ int saveMatrix(floattype **matrix, FILE *matrixFile, size_t amountOfRows,
     
     header.rowcount = amountOfRows;
     header.colcount = amountOfCols;
-    printf("%llu %llu\n", header.colcount, header.rowcount);
     if(fwrite(&header, sizeof(header), 1, matrixFile) != 1){
         return CODE_CANT_WRITE;
     }
