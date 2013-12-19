@@ -45,7 +45,6 @@ Matrix *loadMatrix(FILE *matrixFile)
     MatrixFileHeader header = {0,0};
     fread(&header, sizeof(header), 1, matrixFile);
     
-    printf("\n%llu %llu\n", header.colcount, header.rowcount);
     if(header.colcount == 0 || header.rowcount == 0) {
         return NULL;
     }
