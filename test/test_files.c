@@ -129,6 +129,71 @@ void testSaveMatrix2(void) {
     FreeMatrix(expected, rows);
 }
 
+void testSaveMatrixRectangle(void) {
+    FILE *matrixFile = fopen("test/matrix_to_save2","wb");
+    if(matrixFile == NULL) {
+        return;
+    } 
+    
+    size_t columns = 4;
+    size_t rows = 3;
+    floattype **matrix = AllocMatrix(rows, columns);
+    matrix[0][0] = 1;
+    matrix[0][1] = 2;
+    matrix[0][2] = 3;
+    matrix[0][3] = 4;
+    
+    matrix[1][0] = 1;
+    matrix[1][1] = 2;
+    matrix[1][2] = 3;
+    matrix[1][3] = 4;
+    
+    matrix[2][0] = 1;
+    matrix[2][1] = 2;
+    matrix[2][2] = 3;
+    matrix[2][3] = 4;
+    
+    floattype **expected = AllocMatrix(rows, columns);
+    expected[0][0] = 1;
+    expected[0][1] = 2;
+    expected[0][2] = 3;
+    expected[0][3] = 4;
+    
+    expected[1][0] = 1;
+    expected[1][1] = 2;
+    expected[1][2] = 3;
+    expected[1][3] = 4;
+    
+    expected[2][0] = 1;
+    expected[2][1] = 2;
+    expected[2][2] = 3;
+    expected[2][3] = 4;
+    
+    CU_ASSERT(CODE_OK == saveMatrix(matrix, matrixFile, rows, columns));
+    FreeMatrix(matrix, rows);
+    fclose(matrixFile);
+    
+    Matrix *matrixLoaded;
+    FILE *loadFile = fopen("test/matrix_to_save2","rb");
+    matrixLoaded = loadMatrix(loadFile);
+    fclose(loadFile);
+    
+    CU_ASSERT(NULL != matrixLoaded);
+    if(NULL == matrixLoaded) {
+        FreeMatrix(expected, rows);
+        return;
+    }
+    
+    CU_ASSERT(4 == matrixLoaded->header.colcount);
+    CU_ASSERT(3 == matrixLoaded->header.rowcount);
+    
+    assertMatricesAreSame(expected, matrixLoaded->matrix, &(matrixLoaded->header));
+    
+    FreeMatrix(matrixLoaded->matrix, matrixLoaded->header.rowcount);
+    free(matrixLoaded);
+    FreeMatrix(expected, rows);
+}
+
 void assertMatricesAreSame(floattype **expected, floattype **result, 
         MatrixFileHeader *resultHeader) {
     if(resultHeader->rowcount == 0 && resultHeader->colcount == 0){
@@ -161,7 +226,8 @@ int main() {
 
     /* add the tests to the suite */
     if ((NULL == CU_add_test(pSuite, "testSaveMatrix", testSaveMatrix)) ||
-            (NULL == CU_add_test(pSuite, "testSaveMatrixDifferent", testSaveMatrix2))) {
+            (NULL == CU_add_test(pSuite, "testSaveMatrixDifferent", testSaveMatrix2)) ||
+            (NULL == CU_add_test(pSuite, "testSaveMatrixRectangle", testSaveMatrixRectangle))) {
         CU_cleanup_registry();
         return CU_get_error();
     }
