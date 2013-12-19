@@ -18,6 +18,9 @@ extern "C" {
     static const int CODE_CANT_CLOSE = 2;
     static const int CODE_CANT_WRITE = 3;
     static const int CODE_WRONG_HEADER_FILE = 4;
+    static const int CODE_NOT_ENOUGH_PARAMETERS = 5;
+    static const int CODE_MALFORMED_PARAMETERS = 6;
+    static const int CODE_MUTUAL_EXCLUSIVE_PARAMETERS = 7;
 
 
 #ifdef	__cplusplus

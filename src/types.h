@@ -31,6 +31,17 @@
         MatrixFileHeader header;
         floattype **matrix;
     } Matrix;
+    
+    typedef struct {
+        ULong64_t rows;  //počet naměřených hodnot
+        ULong64_t columns; //počet parametrů modelu
+        
+        bool isZeroOk;
+        
+        bool saveFile;
+        bool loadFile;
+        char *filePath;
+    } Parameters;
 
 #endif
     
