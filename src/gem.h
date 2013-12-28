@@ -4,6 +4,7 @@
  *
  * Created on 18. prosinec 2013, 17:02
  */
+#include "types.h"
 
 #ifndef GEM_H
 #define	GEM_H
@@ -12,7 +13,7 @@
 extern "C" {
 #endif
 
-void solveGem(floattype **matrix, floattype *result, size_t rowAmount);
+int solveGemSquare(floattype **matrix, size_t rowCount);
 
 
 #ifdef	__cplusplus

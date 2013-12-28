@@ -1,44 +1,51 @@
-void solveGem(floattype **matrix, floattype *result, size_t rowAmount)
-{
-    // Jako první dostanu zadanou matici, která je na pravé straně rozšířená o 
-    // matici výsledků.
-    // Jinak se jedná o matici čtvercovou, je to součástí zadání Gramovy matice.
-    int actualRow = 0, innerRow;
-    int actualColumn = 0, innerColumn;
-    floattype valueOfActualRow, valueOfActualInnerRow;
-    // Poslední řádek už je vyřešený
-    //rowAmount je u čtvercové matice i, colsAmount pak i +1
-    for(actualRow = 0; actualRow < rowAmount - 1; actualRow++, actualColumn++) {
-        valueOfActualRow = matrix[actualRow][actualColumn];
-        for(innerColumn = actualColumn; innerColumn < rowAmount + 1; innerColumn++) {
-            matrix[actualRow][innerColumn] = matrix[actualRow][innerColumn] / valueOfActualRow;
-            // V n-tém sloupci mám jedna, ve zbylých sloupcích mám původní 
-            // hodnotu lomeno n tým sloupcem.
-        }
-        // Vezmu jeden po druhém řádky. 
-        // První řádek vydělím prvním indexem a následně přičtu resp. 
-        // odečtu od dalších řádků tolikrát, aby na zbylých řádcích byla v 
-        // daném sloupci nula.
-        // Začínám na dalším řádku než aktuálně jsem.
-        for(innerRow = actualRow + 1; innerRow < rowAmount; innerRow++) {
-            valueOfActualInnerRow = matrix[innerRow][actualColumn]; // Kolikrát je potřeba sluopec přičíst / odečíst
-            // Provedu ve skutečnosti odečtení pro všechny sloupce.
-            for(innerColumn = actualColumn; innerColumn < rowAmount + 1; innerColumn++) {
-                matrix[innerRow][innerColumn] = matrix[innerRow][innerColumn] -
-                        (valueOfActualInnerRow * matrix[actualRow][innerColumn]);
+#include<stdbool.h>
+#include<stdio.h>
+#include<math.h>
+
+#include "types.h"
+#include "codes.h"
+#include "memory.h"
+#include "gem.h"
+#include "print.h"
+
+int solveGemSquare(floattype **matrix, size_t rowCount){
+    floattype highestValue;
+    size_t highestValueRow;
+    floattype *rowToMove;
+    for(size_t actualRow = 0, actualColumn = 0; 
+            actualRow < rowCount; actualRow++, actualColumn++) {
+        // Move with row with highest value. Pivot row must be among unused rows. 
+        highestValue = 0; highestValueRow = actualRow;
+        for(size_t candidateRow = actualRow; candidateRow < rowCount; candidateRow++) {
+            if(matrix[candidateRow][actualColumn] > highestValue){
+                highestValue = matrix[candidateRow][actualColumn];      
+                highestValueRow = candidateRow;
             }
         }
+        rowToMove = matrix[actualRow];
+        matrix[actualRow] = matrix[highestValueRow];
+        matrix[highestValueRow] = rowToMove;
+        
+        // Normalize all columns
+        for(size_t columnToNormalize = actualColumn+1; columnToNormalize < rowCount + 1; 
+                columnToNormalize++) {
+            matrix[actualRow][columnToNormalize] = 
+                    matrix[actualRow][columnToNormalize] / matrix[actualRow][actualColumn];
+        }
+        matrix[actualRow][actualColumn] = 1;
+        
+        // Normalize all rows now
+        for(size_t rowToNormalize = actualRow + 1; rowToNormalize < rowCount;
+                rowToNormalize++) {
+            for(size_t colToNormalize = actualColumn + 1; colToNormalize < rowCount + 1;
+                    colToNormalize++) {
+                matrix[rowToNormalize][colToNormalize] = 
+                        matrix[rowToNormalize][colToNormalize] - 
+                        (matrix[rowToNormalize][actualColumn] * matrix[actualRow][colToNormalize]);
+            }
+            matrix[rowToNormalize][actualColumn] = 0;
+        }
     }
-
-    // V tenhle okamžik by měl být vypsán výsledek gemové matice, která je zadaná v parametru.
-    printf("The result is:\n");
-    for(actualRow = 0; actualRow < rowAmount; actualRow++){
-        result[actualRow] = matrix[actualRow][rowAmount];
-        printf("result na pozici %d=%f\n", actualRow + 1, matrix[actualRow][rowAmount]);
-    }
-}
-
-void sortForPartialPivoting(floattype **matrix, size_t rowCount){
-    // Pro všechny sloupce projdi všechny řádky a setřiď je tak, aby
-    // v daném řádku byl nejvyšší hodnota z nepoužitých hodnot.
+    
+    return CODE_OK;
 }

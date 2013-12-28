@@ -15,6 +15,7 @@
 #include "files.h"
 #include "types.h"
 #include "codes.h"
+#include "parameters.h"
     
 void PrintResult(floattype *result, size_t amountOfResults){
     for(size_t i=0; i < amountOfResults; i++){
@@ -45,41 +46,37 @@ HRESULT SolveLLS4Plus(floattype **extendedmatrix, size_t paramcount, size_t rowc
 }
 
 int solveLLS(int argc, char **argv) {
-    size_t columnCount = getParamSize(argv[1]); //(size_t) argv[1];
-    size_t rowCount = getParamSize(argv[2]); //(size_t) argv[2];
-    bool isZeroOk = getParamBool(argv[3]);
-    
-    bool saveFile;
-    char* filePath;
-    if(argc == 6) {
-        saveFile = getParamBool(argv[4]);
-        filePath = argv[5];
+    int errorCode = 0;
+    Parameters *params = getParams(argc, argv, &errorCode);
+    if(params == NULL) {
+        return errorCode;
     }
     
-    floattype **matrix = AllocMatrix(columnCount, rowCount);
-    GenerateDataForMatrix(matrix, rowCount, columnCount, isZeroOk);
-    floattype *result = AllocRow(rowCount);
-    for(int i = 0; i < columnCount; i++) {
+    floattype **matrix = AllocMatrix(params->columns, params->rows);
+    GenerateDataForMatrix(matrix, params->rows, params->columns, params->isZeroOk);
+    
+    floattype *result = AllocRow(params->rows);
+    for(int i = 0; i < params->columns; i++) {
         result[i] = rand();
     }
     
-    if(argc == 6) {
-        if(saveFile) {
-            saveMatrix(matrix, filePath, rowCount, columnCount);
-        } else {
-            FreeMatrix(matrix, rowCount);
-            matrix = loadMatrix(filePath);
-        }
+    if(params->saveFile) {
+        saveMatrix(matrix, params->filePath, params->rows, params->columns);
+    } 
+    if(params->loadFile) {
+        FreeMatrix(matrix, params->rows);
+        Matrix matrixData;
+        matrixData = loadMatrix(params->filePath);
     }
     
     // This actually generates Gram matrix. 
-    GenerateMatrix(matrix, rowCount, columnCount, result);
+    GenerateMatrix(matrix, params->rows, params->columns, result);
 
-    StartStatistics(rowCount);
+    StartStatistics(params->rows);
 
-    switch(SolveLLS4Plus(matrix, columnCount, rowCount, result)){
+    switch(SolveLLS4Plus(matrix, params->columns, params->rows, result)){
         case S_OK:
-            PrintResult(result, columnCount);
+            PrintResult(result, params->columns);
             break;
         case S_FALSE:
             std::cout << "cannot solve";
@@ -93,7 +90,7 @@ int solveLLS(int argc, char **argv) {
 
     StopAndPrintStatistics();
 
-    FreeMatrix(matrix, rowCount);
+    FreeMatrix(matrix, params->rows);
     free(result);
 
     return (CODE_OK);
@@ -101,5 +98,5 @@ int solveLLS(int argc, char **argv) {
 
 int main(int argc, char **argv)
 {
-    solveLLS(argc, argv);
+    return solveLLS(argc, argv);
 }

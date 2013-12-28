@@ -22,7 +22,7 @@
 
     typedef double floattype;
     
-    typedef struct matrix_file_header {
+    typedef struct {
         ULong64_t rowcount;  //počet řádků matice, malý endián
         ULong64_t colcount; //počet sloupců matice, malý endián
     } MatrixFileHeader;
