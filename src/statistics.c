@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <time.h>
+
 #include "statistics.h"
 
 size_t sizeOfGramMatrix;

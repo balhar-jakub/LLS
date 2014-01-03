@@ -5,6 +5,7 @@
  * Header Files should document interface
  * Source Files should document implementation
  */
+#include <stdio.h>
 
 #ifndef STATISTICS_H
 #define	STATISTICS_H
