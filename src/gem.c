@@ -6,7 +6,7 @@
 #include "codes.h"
 #include "memory.h"
 #include "gem.h"
-#include "print.h"
+#include "print.hpp"
 
 int solveGemSquare(floattype **matrix, size_t rowCount){
     floattype highestValue;

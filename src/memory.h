@@ -17,7 +17,7 @@ extern "C" {
 floattype **AllocMatrix(size_t rowCount, size_t columnCount);
 floattype *AllocRow(size_t rowSize);
 void FreeMatrix(floattype **matrix, size_t rowCount);
-
+floattype *AllocResult(size_t rowSize);
 
 #ifdef	__cplusplus
 }

@@ -30,7 +30,11 @@ HRESULT SolveLLS4Plus(floattype **matrix, size_t paramCount, size_t rowCount, fl
     }
     floattype **gramMatrix = GenerateMatrix(matrix, rowCount, paramCount, result);
     solveGemSquare(gramMatrix, rowCount);
-
+    
+    for(size_t i = 0; i < rowCount; i++) {
+        result[i] = gramMatrix[i][rowCount];
+    }
+    
     FreeMatrix(gramMatrix, rowCount);
     return S_OK;
 }
@@ -47,10 +51,7 @@ int solveLLS(int argc, char **argv) {
     floattype **matrix = AllocMatrix(params->rows, params->columns);
     GenerateDataForMatrix(matrix, params->rows, params->columns, params->isZeroOk);
     
-    floattype *result = AllocRow(params->rows);
-    for(size_t i = 0; i < params->columns; i++) {
-        result[i] = rand();
-    }
+    floattype *result = AllocResult(params->rows);
     
     if(params->saveFile) {
         saveMatrix(matrix, params->filePath, params->rows, params->columns);

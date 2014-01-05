@@ -29,6 +29,13 @@ void testSolveLLS() {
     char *argv[] = {(char*)"lls",(char*)"4",(char*)"4"};
     int result = solveLLS(3, argv);
     
+    CU_ASSERT(result == CODE_OK);
+}
+
+void testSolveLLS_Rectangle() {
+    char *argv[] = {(char*)"lls",(char*)"6",(char*)"4"};
+    int result = solveLLS(3, argv);
+    
     printf("Result: %d\n", result);
     CU_ASSERT(result == CODE_OK);
 }
@@ -55,7 +62,8 @@ int main() {
 
     /* Add the tests to the suite */
     if ((NULL == CU_add_test(pSuite, "testSolveLLS4Plus", testSolveLLS)) ||
-            (NULL == CU_add_test(pSuite, "testSolveLLS4PlusErr", testSolveLLS_Err))) {
+            (NULL == CU_add_test(pSuite, "testSolveLLS4PlusErr", testSolveLLS_Err)) ||
+            (NULL == CU_add_test(pSuite, "testSolveLLS4PlusRectangle", testSolveLLS_Rectangle))) {
         CU_cleanup_registry();
         return CU_get_error();
     }

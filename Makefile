@@ -27,6 +27,9 @@ statistics.o: src/statistics.h src/statistics.c $(HEADER_BASIC)
 lls.o: src/lls.h src/lls.c $(HEADER_BASIC)
 	$(CC) $(CFLAGS) src/lls.c
 
+random.o: src/random.h src/random.c $(HEADER_BASIC)
+	$(CC) $(CFLAGS) src/random.c
+
 test_files.o: test/test_files.c
 	$(CC) $(CFLAGS) test/test_files.c
 
@@ -42,24 +45,24 @@ test_gem.o: test/test_gem.c
 test_lls.o: test/test_lls.c
 	$(CC) $(CFLAGS) test/test_lls.c
 
-test_files: files.o memory.o test_files.o
-	$(CC) memory.o files.o test_files.o $(LINKFLAGS) test_files
+test_files: files.o memory.o test_files.o random.o
+	$(CC) memory.o files.o test_files.o random.o $(LINKFLAGS) test_files
 
-test_matrix: matrix.o memory.o test_matrix.o
-	$(CC) memory.o matrix.o test_matrix.o $(LINKFLAGS) test_matrix
+test_matrix: matrix.o memory.o test_matrix.o random.o
+	$(CC) memory.o matrix.o test_matrix.o random.o $(LINKFLAGS) test_matrix
 
 test_parameters: parameters.o test_parameters.o 
 	$(CC) parameters.o test_parameters.o $(LINKFLAGS) test_parameters
 
-test_gem: memory.o gem.o print.o test_gem.o
-	$(CC) memory.o gem.o print.o test_gem.o $(LINKFLAGS) test_gem
+test_gem: memory.o gem.o print.o test_gem.o random.o
+	$(CC) memory.o gem.o print.o test_gem.o random.o $(LINKFLAGS) test_gem
 
-test_lls: memory.o gem.o lls.o print.o files.o statistics.o matrix.o parameters.o test_lls.o
-	$(CC) memory.o gem.o lls.o print.o files.o statistics.o matrix.o parameters.o test_lls.o $(LINKFLAGS) test_lls
+test_lls: memory.o random.o gem.o lls.o print.o files.o statistics.o matrix.o parameters.o test_lls.o
+	$(CC) memory.o gem.o random.o lls.o print.o files.o statistics.o matrix.o parameters.o test_lls.o $(LINKFLAGS) test_lls
 
 all: build test
 
-build: memory.o gem.o lls.o print.o files.o matrix.o parameters.o statistics.o test_files.o test_matrix.o
+build: memory.o gem.o lls.o print.o random.o files.o matrix.o parameters.o statistics.o test_files.o test_matrix.o
 
 test: test_files test_matrix test_parameters test_gem test_lls
 	valgrind --leak-check=full ./test_files
@@ -70,6 +73,9 @@ test: test_files test_matrix test_parameters test_gem test_lls
 
 test_lls_run: test_lls
 	valgrind --leak-check=full --track-origins=yes ./test_lls
+
+test_gem_run: test_gem
+	valgrind --leak-check=full --track-origins=yes ./test_gem
 
 clean: 
 	rm -rf *o files test_files

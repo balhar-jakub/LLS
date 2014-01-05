@@ -4,6 +4,7 @@
 #include "memory.h"
 #include "types.h"
 #include "codes.h"
+#include "random.h"
 
 /*
 	Allocate dynamically memory for created Matrix. 
@@ -32,8 +33,16 @@ void FreeMatrix(floattype **matrix, size_t rowCount){
 }
 
 /*
- * It simply allocates Row in memory. Just handy shorter notation for malloc.
+ * It simply allocates Row in memory. Just handy shorter notation for calloc.
  */
 floattype *AllocRow(size_t rowSize) {
-    return (floattype*) malloc (sizeof(floattype)*(rowSize));
+    return (floattype*) calloc (rowSize, sizeof(floattype));
+}
+
+floattype *AllocResult(size_t rowSize) {
+    floattype *result = AllocRow(rowSize);
+    for(size_t i = 0; i < rowSize; i++) {
+        result[i] = randLim(20000);
+    }
+    return result;
 }

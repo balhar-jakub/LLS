@@ -5,6 +5,7 @@
 #include "types.h"
 #include "matrix.h"
 #include "memory.h"
+#include "random.h"
 
 /*
  * It gets pointer to matrix and fills the matrix with random data.
@@ -18,7 +19,7 @@ void GenerateDataForMatrix(floattype **matrix,
 {
     for(size_t i = 0; i < rowCount; i++) {
         for(size_t j = 0; j != columnCount; j++){
-            matrix[i][j] = rand();
+            matrix[i][j] = randLim(200);
             if(!isZeroOk && matrix[i][j] == 0) {
                 j--;
             }
