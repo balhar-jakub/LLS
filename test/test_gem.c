@@ -13,6 +13,7 @@
 #include "../src/codes.h"
 #include "../src/types.h"
 #include "../src/memory.h"
+#include "../src/print.hpp"
 
 /*
  * CUnit Test Suite
