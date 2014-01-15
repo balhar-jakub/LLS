@@ -21,6 +21,7 @@ extern "C" {
     static const int CODE_NOT_ENOUGH_PARAMETERS = 5;
     static const int CODE_MALFORMED_PARAMETERS = 6;
     static const int CODE_MUTUAL_EXCLUSIVE_PARAMETERS = 7;
+    static const int CODE_CANT_CREATE_THREAD = 8;
 
 
 #ifdef	__cplusplus

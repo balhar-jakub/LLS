@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -Wall -g -O0
-LINKFLAGS=-lcunit -o
+LINKFLAGS=-lcunit -lpthread -o
 HEADER_BASIC=src/types.h src/codes.h
 
 files.o: src/files.c src/files.h $(HEADER_BASIC)
@@ -58,7 +58,7 @@ test_matrix: matrix.o memory.o test_matrix.o random.o
 	$(CC) memory.o matrix.o test_matrix.o random.o $(LINKFLAGS) test_matrix
 
 test_matrix_pthreads: matrix_pthreads.o memory.o test_matrix.o random.o
-	$(CC) memory.o matrix_pthreads.o test_matrix.o random.o $(LINKFLAGS) test_matrix_pthreads
+	$(CC) memory.o print.o matrix_pthreads.o test_matrix.o random.o $(LINKFLAGS) test_matrix_pthreads
 
 test_parameters: parameters.o test_parameters.o 
 	$(CC) parameters.o test_parameters.o $(LINKFLAGS) test_parameters
@@ -84,8 +84,8 @@ test: test_files test_matrix test_parameters test_gem test_lls
 	valgrind --leak-check=full ./test_lls
 	
 test_pthreads: test_matrix_pthreads test_gem_pthreads
-	valgrind --leak-check=full ./test_matrix_pthreads
-	valgrind --leak-check=full ./test_gem_pthreads
+	valgrind --leak-check=full --track-origins=yes ./test_matrix_pthreads
+	valgrind --leak-check=full --track-origins=yes ./test_gem_pthreads
 
 test_lls_run: test_lls
 	valgrind --leak-check=full --track-origins=yes ./test_lls

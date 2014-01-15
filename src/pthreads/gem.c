@@ -17,7 +17,7 @@ void *normalizeColumnsInSelectionHandler(void *args);
 void *countNewValueColumnsHandler(void *args);
 
 size_t highestValueRowInSelection(floattype **matrix, size_t actualRow, size_t actualColumn, size_t rowCount);
-void normalizeColumnsInSelection(floattype **matrix, size_t actualRow, size_t actualColumn, size_t rowCount);
+void normalizeColumnsInSelection(floattype **matrix, size_t actualRow, size_t actualColumn, size_t rowCount, size_t baseColumn);
 void normalizeRowsInSelection(floattype **matrix, size_t actualRow, size_t actualColumn, size_t rowCount);
 void countNewValueColumns(floattype **matrix, size_t actualRow, size_t rowToNormalize, size_t actualColumn, size_t rowCount);
 
@@ -35,6 +35,15 @@ typedef struct {
     size_t actualRow;
     size_t actualColumn;
     size_t rowCount;
+    size_t baseColumn;
+} ColumnNormalize;
+
+typedef struct {
+    floattype **matrix;
+    
+    size_t actualRow;
+    size_t actualColumn;
+    size_t rowCount;
     size_t rowToNormalize;
     
 } CountNewValueColumnParameters;
@@ -43,11 +52,14 @@ typedef struct {
 int solveGemSquare(floattype **matrix, size_t rowCount){
     size_t highestValueRow;
     floattype *rowToMove;
+    size_t columnCount = rowCount + 1;
     
     int amountOfThreads = 4, result;
     int rowsPerThread = ceil((double)((double)rowCount / (double)amountOfThreads));
+    int columnsPerThread = ceil((double)((double)columnCount / (double)amountOfThreads));
     pthread_t thread[amountOfThreads];
     HighestValueRowParameters *highestValueParams[amountOfThreads];
+    ColumnNormalize *columnNormalize[amountOfThreads];
     size_t *returnValues[amountOfThreads];
     floattype highestValue = 0;
     
@@ -102,9 +114,38 @@ int solveGemSquare(floattype **matrix, size_t rowCount){
         matrix[actualRow] = matrix[highestValueRow];
         matrix[highestValueRow] = rowToMove;
         
-        
         // Normalize all columns
-        normalizeColumnsInSelection(matrix, actualRow, actualColumn, rowCount+1);
+        for(int i = 0; i < amountOfThreads; i++) {
+            if(actualColumn + (i * rowsPerThread) >= columnCount) {
+                continue;
+            }
+            columnNormalize[i] = (ColumnNormalize*) malloc(sizeof(ColumnNormalize));
+            columnNormalize[i]->actualRow = actualRow;
+            columnNormalize[i]->matrix = matrix;
+            
+            columnNormalize[i]->baseColumn = actualColumn;
+            columnNormalize[i]->actualColumn = actualColumn + (i * columnsPerThread);
+            size_t maxCell = actualColumn + ((i + 1) * columnsPerThread) + 1;
+            if(maxCell > columnCount) { 
+                maxCell = columnCount;
+            }
+            columnNormalize[i]->rowCount = maxCell;
+            result = pthread_create(&thread[i], NULL, normalizeColumnsInSelectionHandler, columnNormalize[i]);
+            if(result != CODE_OK) {
+                return CODE_CANT_CREATE_THREAD;
+            }
+            
+        }
+        for(int i = 0; i < amountOfThreads; i++) {
+            if(actualColumn + (i * rowsPerThread) >= rowCount) {
+                continue;
+            }
+            result = pthread_join(thread[i], NULL);
+            if(result != CODE_OK) {
+                return CODE_CANT_CREATE_THREAD;
+            }
+            free(columnNormalize[i]);
+        }
         matrix[actualRow][actualColumn] = 1;
         
         // Normalize all rows now
@@ -128,10 +169,6 @@ void normalizeRowsInSelection(floattype **matrix, size_t actualRow, size_t actua
     }
 }
 
-void *countNewValueColumnsHandler(void *args) {
-    return NULL;
-}
-
 void countNewValueColumns(floattype **matrix, size_t actualRow, size_t rowToNormalize, size_t actualColumn, size_t rowCount) {
     for(size_t colToNormalize = actualColumn+1; colToNormalize < rowCount;
             colToNormalize++) {
@@ -142,14 +179,17 @@ void countNewValueColumns(floattype **matrix, size_t actualRow, size_t rowToNorm
 }
 
 void *normalizeColumnsInSelectionHandler(void *args) {
+    ColumnNormalize *params = (ColumnNormalize*)args;
+    normalizeColumnsInSelection(params->matrix, params->actualRow, params->actualColumn, params->rowCount, params->baseColumn);
     return NULL;
 }
 
-void normalizeColumnsInSelection(floattype **matrix, size_t actualRow, size_t actualColumn, size_t rowCount) {
+void normalizeColumnsInSelection(floattype **matrix, size_t actualRow, size_t actualColumn, size_t rowCount, size_t baseColumn) {
     for(size_t columnToNormalize = actualColumn + 1; columnToNormalize < rowCount; 
                 columnToNormalize++) {
+        printf("Row: %ld, Column: %ld\n", actualRow, columnToNormalize);
         matrix[actualRow][columnToNormalize] = 
-                matrix[actualRow][columnToNormalize] / matrix[actualRow][actualColumn];
+                matrix[actualRow][columnToNormalize] / matrix[actualRow][baseColumn];
     }   
 }
 
