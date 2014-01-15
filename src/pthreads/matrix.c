@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <math.h>
 
 #include "../matrix.h"
 #include "../types.h"
@@ -59,13 +60,13 @@ floattype **GenerateMatrix(floattype **matrix,
         return NULL;
     }
     floattype **gramMatrix = AllocMatrix(rows, (rows+1));
-    int amountOfTasks = (rows * rows);
+    int amountOfTasks = (rows * ceil((double)((double)rows / (double)cellsPerThread)));
     int actualTask = 0, result = CODE_OK;
     CountCellParameters *params[amountOfTasks];
     pthread_t thread[amountOfTasks];
     
     for(size_t row = 0; row < rows; row++) {
-        for(size_t cell=0; cell < rows; cell++){
+        for(size_t cell = 0; cell < rows; cell += cellsPerThread){
             params[actualTask] = (CountCellParameters*) malloc (sizeof(CountCellParameters));
             params[actualTask]->cell = cell;
             params[actualTask]->columns = columns;
