@@ -134,7 +134,7 @@ void testSolveGemMoreComplicated() {
     expected[2][0] = 0;
     expected[2][1] = 0;
     expected[2][2] = 1;
-    expected[2][3] = -2.048193;
+    expected[2][3] = -2.445783;
     
     int result = solveGemSquare(matrix, rowCount);
     CU_ASSERT(result == CODE_OK);
@@ -232,7 +232,7 @@ void testSolveGemPivotingMoreComplicated() {
     expected[2][0] = 0;
     expected[2][1] = 0;
     expected[2][2] = 1;
-    expected[2][3] = 3.600153;
+    expected[2][3] = 3.600173;
     
     int result = solveGemSquare(matrix, rowCount);
     CU_ASSERT(result == CODE_OK);
